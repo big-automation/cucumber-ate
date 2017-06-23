@@ -41,8 +41,7 @@ import static cucumber.runtime.io.MultiLoader.packageName;
 
 public class AteBackend implements Backend {
 	public static final String defaultTestProjectXmlFilePathName = "indeedJobApplication/testproject.xml";
-	private final TestProject testProject =GlobalUtils
-			.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
+	private final TestProject testProject;
     public static final ThreadLocal<AteBackend> INSTANCE = new ThreadLocal<AteBackend>();
     private final SnippetGenerator snippetGenerator = new SnippetGenerator(createSnippet());
 
@@ -69,7 +68,10 @@ public class AteBackend implements Backend {
      * @param resourceLoader
      */
     public AteBackend(ResourceLoader resourceLoader) {
-    	
+    	TestProjectRunner.registerXsdNameSpaceParsers();
+    	TestProjectRunner.registerProblemHandlers();
+		this.testProject =GlobalUtils
+				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
         methodScanner = new AteStepScanner(classFinder);
@@ -77,6 +79,10 @@ public class AteBackend implements Backend {
     }
 
     public AteBackend(ObjectFactory objectFactory) {
+    	TestProjectRunner.registerXsdNameSpaceParsers();
+    	TestProjectRunner.registerProblemHandlers();
+		this.testProject =GlobalUtils
+				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
@@ -85,6 +91,10 @@ public class AteBackend implements Backend {
     }
 
     public AteBackend(ObjectFactory objectFactory, ClassFinder classFinder) {
+    	TestProjectRunner.registerXsdNameSpaceParsers();
+    	TestProjectRunner.registerProblemHandlers();
+		this.testProject =GlobalUtils
+				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
         this.objectFactory = objectFactory;
         this.classFinder = classFinder;
         methodScanner = new AteStepScanner(classFinder);
