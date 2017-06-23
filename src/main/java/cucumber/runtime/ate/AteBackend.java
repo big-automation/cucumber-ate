@@ -23,16 +23,26 @@ import cucumber.runtime.snippets.Snippet;
 import cucumber.runtime.snippets.SnippetGenerator;
 import gherkin.formatter.model.Step;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.bigtester.ate.GlobalUtils;
+import org.bigtester.ate.TestProjectRunner;
+import org.bigtester.ate.model.project.TestProject;
+import org.dbunit.DatabaseUnitException;
+
 import static cucumber.runtime.io.MultiLoader.packageName;
 
 public class AteBackend implements Backend {
+	public static final String defaultTestProjectXmlFilePathName = "indeedJobApplication/testproject.xml";
+	private final TestProject testplan =GlobalUtils
+			.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
     public static final ThreadLocal<AteBackend> INSTANCE = new ThreadLocal<AteBackend>();
     private final SnippetGenerator snippetGenerator = new SnippetGenerator(createSnippet());
 
@@ -59,6 +69,7 @@ public class AteBackend implements Backend {
      * @param resourceLoader
      */
     public AteBackend(ResourceLoader resourceLoader) {
+    	
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
         methodScanner = new MethodScanner(classFinder);
@@ -85,19 +96,7 @@ public class AteBackend implements Backend {
         // Scan for Java7 style glue (annotated methods)
         methodScanner.scan(this, gluePaths);
 
-        // Scan for Java8 style glue (lambdas)
-        for (final String gluePath : gluePaths) {
-            Collection<Class<? extends GlueBase>> glueDefinerClasses = classFinder.getDescendants(GlueBase.class, packageName(gluePath));
-            for (final Class<? extends GlueBase> glueClass : glueDefinerClasses) {
-                if (glueClass.isInterface()) {
-                    continue;
-                }
-
-                if (objectFactory.addClass(glueClass)) {
-                    glueBaseClasses.add(glueClass);
-                }
-            }
-        }
+       
     }
 
     /**
@@ -120,6 +119,18 @@ public class AteBackend implements Backend {
 
     @Override
     public void buildWorld() {
+    	try {
+			TestProjectRunner.initDB(testplan.getAppCtx());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DatabaseUnitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         objectFactory.start();
 
         // Instantiate all the stepdef classes for java8 - the stepdef will be initialised
