@@ -5,7 +5,7 @@ import cucumber.api.java.ObjectFactory;
 import cucumber.runtime.CucumberException;
 import cucumber.runtime.Glue;
 import cucumber.runtime.ate.AteBackend;
-import cucumber.runtime.ate.MethodScanner;
+import cucumber.runtime.ate.AteStepScanner;
 import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.io.ResourceLoaderClassFinder;

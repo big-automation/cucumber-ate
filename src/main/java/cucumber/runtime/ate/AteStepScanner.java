@@ -11,14 +11,16 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
+import org.bigtester.ate.model.project.TestProject;
+
 import static cucumber.runtime.io.MultiLoader.packageName;
 
-class MethodScanner {
+class AteStepScanner {
     private final Collection<Class<? extends Annotation>> cucumberAnnotationClasses;
 
     private final ClassFinder classFinder;
 
-    public MethodScanner(ClassFinder classFinder) {
+    public AteStepScanner(ClassFinder classFinder) {
         this.classFinder = classFinder;
         cucumberAnnotationClasses = findCucumberAnnotationClasses();
     }
@@ -29,7 +31,7 @@ class MethodScanner {
      * @param javaBackend the backend where stepdefs and hooks will be registered
      * @param gluePaths   where to look
      */
-    public void scan(AteBackend javaBackend, List<String> gluePaths) {
+    public void scan(AteBackend javaBackend, List<String> gluePaths, TestProject ateTestProj) {
         for (String gluePath : gluePaths) {
             for (Class<?> glueCodeClass : classFinder.getDescendants(Object.class, packageName(gluePath))) {
                 while (glueCodeClass != null && glueCodeClass != Object.class && !Utils.isInstantiable(glueCodeClass)) {

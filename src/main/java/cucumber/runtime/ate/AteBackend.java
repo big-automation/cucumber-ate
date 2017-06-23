@@ -41,7 +41,7 @@ import static cucumber.runtime.io.MultiLoader.packageName;
 
 public class AteBackend implements Backend {
 	public static final String defaultTestProjectXmlFilePathName = "indeedJobApplication/testproject.xml";
-	private final TestProject testplan =GlobalUtils
+	private final TestProject testProject =GlobalUtils
 			.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
     public static final ThreadLocal<AteBackend> INSTANCE = new ThreadLocal<AteBackend>();
     private final SnippetGenerator snippetGenerator = new SnippetGenerator(createSnippet());
@@ -59,7 +59,7 @@ public class AteBackend implements Backend {
     private final ObjectFactory objectFactory;
     private final ClassFinder classFinder;
 
-    private final MethodScanner methodScanner;
+    private final AteStepScanner methodScanner;
     private Glue glue;
     private List<Class<? extends GlueBase>> glueBaseClasses = new ArrayList<Class<? extends GlueBase>>();
 
@@ -72,7 +72,7 @@ public class AteBackend implements Backend {
     	
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-        methodScanner = new MethodScanner(classFinder);
+        methodScanner = new AteStepScanner(classFinder);
         objectFactory = ObjectFactoryLoader.loadObjectFactory(classFinder, Env.INSTANCE.get(ObjectFactory.class.getName()));
     }
 
@@ -80,21 +80,21 @@ public class AteBackend implements Backend {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-        methodScanner = new MethodScanner(classFinder);
+        methodScanner = new AteStepScanner(classFinder);
         this.objectFactory = objectFactory;
     }
 
     public AteBackend(ObjectFactory objectFactory, ClassFinder classFinder) {
         this.objectFactory = objectFactory;
         this.classFinder = classFinder;
-        methodScanner = new MethodScanner(classFinder);
+        methodScanner = new AteStepScanner(classFinder);
     }
 
     @Override
     public void loadGlue(Glue glue, List<String> gluePaths) {
         this.glue = glue;
         // Scan for Java7 style glue (annotated methods)
-        methodScanner.scan(this, gluePaths);
+        methodScanner.scan(this, gluePaths, this.testProject);
 
        
     }
@@ -120,7 +120,7 @@ public class AteBackend implements Backend {
     @Override
     public void buildWorld() {
     	try {
-			TestProjectRunner.initDB(testplan.getAppCtx());
+			TestProjectRunner.initDB(testProject.getAppCtx());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
