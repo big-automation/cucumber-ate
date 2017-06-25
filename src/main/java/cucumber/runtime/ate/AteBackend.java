@@ -58,7 +58,7 @@ public class AteBackend implements Backend {
     private final ObjectFactory objectFactory;
     private final ClassFinder classFinder;
 
-    private final AteStepScanner methodScanner;
+    private final AteStepScanner ateStepScanner;
     private Glue glue;
     private List<Class<? extends GlueBase>> glueBaseClasses = new ArrayList<Class<? extends GlueBase>>();
 
@@ -74,7 +74,7 @@ public class AteBackend implements Backend {
 				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-        methodScanner = new AteStepScanner(classFinder);
+        ateStepScanner = new AteStepScanner(classFinder);
         objectFactory = ObjectFactoryLoader.loadObjectFactory(classFinder, Env.INSTANCE.get(ObjectFactory.class.getName()));
     }
 
@@ -86,7 +86,7 @@ public class AteBackend implements Backend {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-        methodScanner = new AteStepScanner(classFinder);
+        ateStepScanner = new AteStepScanner(classFinder);
         this.objectFactory = objectFactory;
     }
 
@@ -97,14 +97,14 @@ public class AteBackend implements Backend {
 				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
         this.objectFactory = objectFactory;
         this.classFinder = classFinder;
-        methodScanner = new AteStepScanner(classFinder);
+        ateStepScanner = new AteStepScanner(classFinder);
     }
 
     @Override
     public void loadGlue(Glue glue, List<String> gluePaths) {
         this.glue = glue;
         // Scan for Java7 style glue (annotated methods)
-        methodScanner.scan(this, gluePaths, this.testProject);
+        ateStepScanner.scan(this, gluePaths, this.testProject);
 
        
     }
@@ -119,7 +119,7 @@ public class AteBackend implements Backend {
      */
     public void loadGlue(Glue glue, Method method, Class<?> glueCodeClass) {
         this.glue = glue;
-        methodScanner.scan(this, method, glueCodeClass);
+        ateStepScanner.scan(this, method, glueCodeClass);
     }
 
     @Override

@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
+import org.bigtester.ate.model.casestep.ITestStep;
 import org.bigtester.ate.model.project.TestProject;
 
 import static cucumber.runtime.io.MultiLoader.packageName;
@@ -32,19 +33,20 @@ class AteStepScanner {
      * @param gluePaths   where to look
      */
     public void scan(AteBackend ateBackend, List<String> gluePaths, TestProject ateTestProj) {
-        for (String gluePath : gluePaths) {
-            for (Class<?> glueCodeClass : classFinder.getDescendants(Object.class, packageName(gluePath))) {
-                while (glueCodeClass != null && glueCodeClass != Object.class && !Utils.isInstantiable(glueCodeClass)) {
-                    // those can't be instantiated without container class present.
-                    glueCodeClass = glueCodeClass.getSuperclass();
-                }
-                if (glueCodeClass != null) {
-                    for (Method method : glueCodeClass.getMethods()) {
-                        scan(ateBackend, method, glueCodeClass, ateTestProj);
-                    }
-                }
-            }
-        }
+//        for (String gluePath : gluePaths) {
+//            for (Class<?> glueCodeClass : classFinder.getDescendants(Object.class, packageName(gluePath))) {
+//                while (glueCodeClass != null && glueCodeClass != Object.class && !Utils.isInstantiable(glueCodeClass)) {
+//                    // those can't be instantiated without container class present.
+//                    glueCodeClass = glueCodeClass.getSuperclass();
+//                }
+//                if (glueCodeClass != null) {
+//                    for (Method method : glueCodeClass.getMethods()) {
+//                        scan(ateBackend, method, glueCodeClass, ateTestProj);
+//                    }
+//                }
+//            }
+//        }
+    	scan(ateBackend, ateTestProj);
     }
 
     /**
@@ -54,7 +56,7 @@ class AteStepScanner {
      * @param method        a candidate for being a stepdef or hook.
      * @param glueCodeClass the class where the method is declared.
      */
-    public void scan(AteBackend javaBackend, Method method, Class<?> glueCodeClass, TestProject ateTestProject) {
+    public void scan(AteBackend javaBackend, TestProject ateTestProject) {
         for (Class<? extends Annotation> cucumberAnnotationClass : cucumberAnnotationClasses) {
             Annotation annotation = method.getAnnotation(cucumberAnnotationClass);
             if (annotation != null) {
@@ -64,9 +66,9 @@ class AteStepScanner {
                 if (!glueCodeClass.equals(method.getDeclaringClass())) {
                     throw new CucumberException(String.format("You're not allowed to extend classes that define Step Definitions or hooks. %s extends %s", glueCodeClass, method.getDeclaringClass()));
                 }
-                if (isHookAnnotation(annotation)) {
+                if (isHookStep(annotation)) {
                     javaBackend.addHook(annotation, method);
-                } else if (isStepdefAnnotation(annotation)) {
+                } else if (isRegularStepdef(annotation)) {
                     javaBackend.addStepDefinition(annotation, method);
                 }
             }
@@ -83,9 +85,9 @@ class AteStepScanner {
                 if (!glueCodeClass.equals(method.getDeclaringClass())) {
                     throw new CucumberException(String.format("You're not allowed to extend classes that define Step Definitions or hooks. %s extends %s", glueCodeClass, method.getDeclaringClass()));
                 }
-                if (isHookAnnotation(annotation)) {
+                if (isHookStep(annotation)) {
                     javaBackend.addHook(annotation, method);
-                } else if (isStepdefAnnotation(annotation)) {
+                } else if (isRegularStepdef(annotation)) {
                     javaBackend.addStepDefinition(annotation, method);
                 }
             }
@@ -96,12 +98,12 @@ class AteStepScanner {
         return classFinder.getDescendants(Annotation.class, "cucumber.api");
     }
 
-    private boolean isHookAnnotation(Annotation annotation) {
+    private boolean isHookStep(ITestStep annotation) {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         return annotationClass.equals(Before.class) || annotationClass.equals(After.class);
     }
 
-    private boolean isStepdefAnnotation(Annotation annotation) {
+    private boolean isRegularStepdef(ITestStep annotation) {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         return annotationClass.getAnnotation(StepDefAnnotation.class) != null;
     }
