@@ -9,7 +9,7 @@ import cucumber.runtime.HookDefinition;
 import cucumber.runtime.RuntimeGlue;
 import cucumber.runtime.UndefinedStepsTracker;
 import cucumber.runtime.ate.AteBackend;
-import cucumber.runtime.ate.JavaHookDefinition;
+import cucumber.runtime.ate.AteHookDefinition;
 import cucumber.runtime.xstream.LocalizedXStreams;
 import gherkin.formatter.model.Tag;
 

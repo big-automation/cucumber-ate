@@ -169,7 +169,7 @@ public class AteBackend implements Backend {
     void addStepDefinition(Annotation annotation, Method method) {
         try {
             if (objectFactory.addClass(method.getDeclaringClass())) {
-                glue.addStepDefinition(new JavaStepDefinition(method, pattern(annotation), timeoutMillis(annotation), objectFactory));
+                glue.addStepDefinition(new AteStepDefinition(method, pattern(annotation), timeoutMillis(annotation), objectFactory));
             }
         } catch (DuplicateStepDefinitionException e) {
             throw e;
@@ -191,11 +191,11 @@ public class AteBackend implements Backend {
             if (annotation.annotationType().equals(Before.class)) {
                 String[] tagExpressions = ((Before) annotation).value();
                 long timeout = ((Before) annotation).timeout();
-                glue.addBeforeHook(new JavaHookDefinition(method, tagExpressions, ((Before) annotation).order(), timeout, objectFactory));
+                glue.addBeforeHook(new AteHookDefinition(method, tagExpressions, ((Before) annotation).order(), timeout, objectFactory));
             } else {
                 String[] tagExpressions = ((After) annotation).value();
                 long timeout = ((After) annotation).timeout();
-                glue.addAfterHook(new JavaHookDefinition(method, tagExpressions, ((After) annotation).order(), timeout, objectFactory));
+                glue.addAfterHook(new AteHookDefinition(method, tagExpressions, ((After) annotation).order(), timeout, objectFactory));
             }
         }
     }

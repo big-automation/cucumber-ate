@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.regex.Pattern;
 
-class JavaStepDefinition implements StepDefinition {
+class AteStepDefinition implements StepDefinition {
     private final Method method;
     private final Pattern pattern;
     private final long timeoutMillis;
@@ -24,7 +24,7 @@ class JavaStepDefinition implements StepDefinition {
     private final JdkPatternArgumentMatcher argumentMatcher;
     private final List<ParameterInfo> parameterInfos;
 
-    public JavaStepDefinition(Method method, Pattern pattern, long timeoutMillis, ObjectFactory objectFactory) {
+    public AteStepDefinition(Method method, Pattern pattern, long timeoutMillis, ObjectFactory objectFactory) {
         this.method = method;
         this.pattern = pattern;
         this.timeoutMillis = timeoutMillis;
@@ -35,7 +35,9 @@ class JavaStepDefinition implements StepDefinition {
     }
 
     public void execute(I18n i18n, Object[] args) throws Throwable {
-        Utils.invoke(objectFactory.getInstance(method.getDeclaringClass()), method, timeoutMillis, args);
+    	//TODO execution of ate steps will be invoked by ate for now.
+    	return;
+        //Utils.invoke(objectFactory.getInstance(method.getDeclaringClass()), method, timeoutMillis, args);
     }
 
     public List<Argument> matchedArguments(Step step) {

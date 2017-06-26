@@ -11,8 +11,16 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
+import org.bigtester.ate.GlobalUtils;
+import org.bigtester.ate.model.caserunner.CaseRunner;
+import org.bigtester.ate.model.casestep.ICucumberTestStep;
+import org.bigtester.ate.model.casestep.ICucumberTestStep.CucumberStepType;
 import org.bigtester.ate.model.casestep.ITestStep;
+import org.bigtester.ate.model.casestep.TestCase;
+import org.bigtester.ate.model.data.TestParameters;
 import org.bigtester.ate.model.project.TestProject;
+import org.bigtester.ate.model.project.TestSuite;
+import org.bigtester.ate.model.project.XmlTestCase;
 
 import static cucumber.runtime.io.MultiLoader.packageName;
 
@@ -57,20 +65,24 @@ class AteStepScanner {
      * @param glueCodeClass the class where the method is declared.
      */
     public void scan(AteBackend javaBackend, TestProject ateTestProject) {
-        for (Class<? extends Annotation> cucumberAnnotationClass : cucumberAnnotationClasses) {
-            Annotation annotation = method.getAnnotation(cucumberAnnotationClass);
-            if (annotation != null) {
-                if (!method.getDeclaringClass().isAssignableFrom(glueCodeClass)) {
-                    throw new CucumberException(String.format("%s isn't assignable from %s", method.getDeclaringClass(), glueCodeClass));
-                }
-                if (!glueCodeClass.equals(method.getDeclaringClass())) {
-                    throw new CucumberException(String.format("You're not allowed to extend classes that define Step Definitions or hooks. %s extends %s", glueCodeClass, method.getDeclaringClass()));
-                }
-                if (isHookStep(annotation)) {
-                    javaBackend.addHook(annotation, method);
-                } else if (isRegularStepdef(annotation)) {
-                    javaBackend.addStepDefinition(annotation, method);
-                }
+        for (TestSuite testSuite: ateTestProject.getSuiteList()) {
+        	for (XmlTestCase testCase: testSuite.getTestCaseList()) {
+        		CaseRunner caseRunner = new CaseRunner();
+				caseRunner.initializeTestCase(new TestParameters(testCase
+						.getTestCaseFilePathName(), testCase
+						.getTestCaseFilePathName(), ateTestProject
+						.getStepThinkTime(), ateTestProject.getAppCtx(),
+						ateTestProject));
+				for (ITestStep step:caseRunner.getMyTestCase().getTestStepList()) {
+					if (GlobalUtils.getTargetObject(step) instanceof ICucumberTestStep){
+						ICucumberTestStep cucumberStep = (ICucumberTestStep) GlobalUtils.getTargetObject(step);
+		                if (cucumberStep.getCucumberStepType().equals(CucumberStepType.HOOK)) {
+		                    javaBackend.addHook(null, null);
+		                } else if (isRegularStepdef(null)) {
+		                    javaBackend.addStepDefinition(null, null);
+		                }
+					}
+				}
             }
         }
     }
@@ -85,9 +97,9 @@ class AteStepScanner {
                 if (!glueCodeClass.equals(method.getDeclaringClass())) {
                     throw new CucumberException(String.format("You're not allowed to extend classes that define Step Definitions or hooks. %s extends %s", glueCodeClass, method.getDeclaringClass()));
                 }
-                if (isHookStep(annotation)) {
+                if (isHookStep(null)) {
                     javaBackend.addHook(annotation, method);
-                } else if (isRegularStepdef(annotation)) {
+                } else if (isRegularStepdef(null)) {
                     javaBackend.addStepDefinition(annotation, method);
                 }
             }
@@ -98,13 +110,13 @@ class AteStepScanner {
         return classFinder.getDescendants(Annotation.class, "cucumber.api");
     }
 
-    private boolean isHookStep(ITestStep annotation) {
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        return annotationClass.equals(Before.class) || annotationClass.equals(After.class);
+    private boolean isHookStep(ICucumberTestStep cucumberStep) {
+//        Class<? extends Annotation> annotationClass = annotation.annotationType();
+//        return annotationClass.equals(Before.class) || annotationClass.equals(After.class);
+    	return cucumberStep.getCucumberStepType().equals(CucumberStepType.HOOK);
     }
 
-    private boolean isRegularStepdef(ITestStep annotation) {
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        return annotationClass.getAnnotation(StepDefAnnotation.class) != null;
+    private boolean isRegularStepdef(ICucumberTestStep cStep) {
+        return !isHookStep(cStep);
     }
 }
