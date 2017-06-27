@@ -175,13 +175,13 @@ public class AteBackend implements Backend {
         }
     }
 
-    public void addStepDefinition(String regexp, long timeoutMillis, StepdefBody body, TypeIntrospector typeIntrospector) {
-        try {
-            glue.addStepDefinition(new Java8StepDefinition(Pattern.compile(regexp), timeoutMillis, body, typeIntrospector));
-        } catch (Exception e) {
-            throw new CucumberException(e);
-        }
-    }
+//    public void addStepDefinition(String regexp, long timeoutMillis, StepdefBody body, TypeIntrospector typeIntrospector) {
+//        try {
+//            glue.addStepDefinition(new Java8StepDefinition(Pattern.compile(regexp), timeoutMillis, body, typeIntrospector));
+//        } catch (Exception e) {
+//            throw new CucumberException(e);
+//        }
+//    }
 
     void addHook(Annotation annotation, Method method) {
         if (objectFactory.addClass(method.getDeclaringClass())) {
@@ -197,21 +197,21 @@ public class AteBackend implements Backend {
         }
     }
 
-    public void addBeforeHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookBody body) {
-        glue.addBeforeHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
-    }
-
-    public void addAfterHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookBody body) {
-        glue.addAfterHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
-    }
-
-    public void addBeforeHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookNoArgsBody body) {
-        glue.addBeforeHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
-    }
-
-    public void addAfterHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookNoArgsBody body) {
-        glue.addAfterHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
-    }
+//    public void addBeforeHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookBody body) {
+//        glue.addBeforeHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
+//    }
+//
+//    public void addAfterHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookBody body) {
+//        glue.addAfterHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
+//    }
+//
+//    public void addBeforeHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookNoArgsBody body) {
+//        glue.addBeforeHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
+//    }
+//
+//    public void addAfterHookDefinition(String[] tagExpressions, long timeoutMillis, int order, HookNoArgsBody body) {
+//        glue.addAfterHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
+//    }
 
     private Pattern pattern(ICucumberTestStep cucumberStep) throws Throwable {
         //Method regexpMethod = annotation.getClass().getMethod("value");
