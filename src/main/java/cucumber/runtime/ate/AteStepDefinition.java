@@ -48,6 +48,7 @@ class AteStepDefinition implements StepDefinition {
     @Override
     public void execute(I18n i18n, Object[] args) throws Throwable {
     	//TODO execution of ate steps will be invoked by ate for now.
+    	System.out.println("invoke ate steps here!");
     	return;
         //Utils.invoke(objectFactory.getInstance(method.getDeclaringClass()), method, timeoutMillis, args);
     }
@@ -70,7 +71,7 @@ class AteStepDefinition implements StepDefinition {
 
     @Override
     public Integer getParameterCount() {
-        return parameterInfos.size();
+        return 0; //parameterInfos.size();
     }
 
     @Override

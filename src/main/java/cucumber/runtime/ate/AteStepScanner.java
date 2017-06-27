@@ -83,6 +83,7 @@ class AteStepScanner {
 		                }
 					}
 				}
+				caseRunner.tearDown();
             }
         }
     }
