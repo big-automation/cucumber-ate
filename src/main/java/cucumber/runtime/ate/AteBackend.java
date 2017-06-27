@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import org.bigtester.ate.GlobalUtils;
 import org.bigtester.ate.TestProjectRunner;
+import org.bigtester.ate.model.casestep.ICucumberTestStep;
 import org.bigtester.ate.model.project.TestProject;
 import org.dbunit.DatabaseUnitException;
 
@@ -43,16 +44,12 @@ public class AteBackend implements Backend {
 	public static final String defaultTestProjectXmlFilePathName = "indeedJobApplication/testproject.xml";
 	private final TestProject testProject;
     public static final ThreadLocal<AteBackend> INSTANCE = new ThreadLocal<AteBackend>();
-    private final SnippetGenerator snippetGenerator = new SnippetGenerator(createSnippet());
+    private final AteSnippetGenerator snippetGenerator = new AteSnippetGenerator(createSnippet());
 
-    private Snippet createSnippet() {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            classLoader.loadClass("cucumber.runtime.java8.LambdaGlueBase");
-            return new Java8Snippet();
-        } catch (ClassNotFoundException thatsOk) {
+    private AteSnippet createSnippet() {
+      
             return new AteSnippet();
-        }
+      
     }
 
     private final ObjectFactory objectFactory;
@@ -166,11 +163,11 @@ public class AteBackend implements Backend {
         return snippetGenerator.getSnippet(step, functionNameGenerator);
     }
 
-    void addStepDefinition(Annotation annotation, Method method) {
+    void addStepDefinition(ICucumberTestStep cucumberStep) {
         try {
-            if (objectFactory.addClass(method.getDeclaringClass())) {
-                glue.addStepDefinition(new AteStepDefinition(method, pattern(annotation), timeoutMillis(annotation), objectFactory));
-            }
+            //if (objectFactory.addClass(method.getDeclaringClass())) {
+                glue.addStepDefinition(new AteStepDefinition(cucumberStep, pattern(cucumberStep), timeoutMillis(cucumberStep), objectFactory));
+            //}
         } catch (DuplicateStepDefinitionException e) {
             throw e;
         } catch (Throwable e) {
@@ -216,15 +213,17 @@ public class AteBackend implements Backend {
         glue.addAfterHook(new Java8HookDefinition(tagExpressions, order, timeoutMillis, body));
     }
 
-    private Pattern pattern(Annotation annotation) throws Throwable {
-        Method regexpMethod = annotation.getClass().getMethod("value");
-        String regexpString = (String) Utils.invoke(annotation, regexpMethod, 0);
+    private Pattern pattern(ICucumberTestStep cucumberStep) throws Throwable {
+        //Method regexpMethod = annotation.getClass().getMethod("value");
+        //String regexpString = (String) Utils.invoke(annotation, regexpMethod, 0);
+    	String regexpString = cucumberStep.getStepDescription();
         return Pattern.compile(regexpString);
     }
 
-    private long timeoutMillis(Annotation annotation) throws Throwable {
-        Method regexpMethod = annotation.getClass().getMethod("timeout");
-        return (Long) Utils.invoke(annotation, regexpMethod, 0);
+    private long timeoutMillis(ICucumberTestStep cucumberStep) throws Throwable {
+        //Method regexpMethod = annotation.getClass().getMethod("timeout");
+        //return (Long) Utils.invoke(annotation, regexpMethod, 0);
+    	return cucumberStep.getTimeOutMillis();
     }
 
 }

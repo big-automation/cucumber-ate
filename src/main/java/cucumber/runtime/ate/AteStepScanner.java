@@ -76,10 +76,10 @@ class AteStepScanner {
 				for (ITestStep step:caseRunner.getMyTestCase().getTestStepList()) {
 					if (GlobalUtils.getTargetObject(step) instanceof ICucumberTestStep){
 						ICucumberTestStep cucumberStep = (ICucumberTestStep) GlobalUtils.getTargetObject(step);
-		                if (cucumberStep.getCucumberStepType().equals(CucumberStepType.HOOK)) {
+		                if (this.isHookStep(cucumberStep)) {
 		                    javaBackend.addHook(null, null);
-		                } else if (isRegularStepdef(null)) {
-		                    javaBackend.addStepDefinition(null, null);
+		                } else if (isRegularStepdef(cucumberStep)) {
+		                    javaBackend.addStepDefinition(cucumberStep);
 		                }
 					}
 				}
@@ -100,7 +100,7 @@ class AteStepScanner {
                 if (isHookStep(null)) {
                     javaBackend.addHook(annotation, method);
                 } else if (isRegularStepdef(null)) {
-                    javaBackend.addStepDefinition(annotation, method);
+                    javaBackend.addStepDefinition(null);
                 }
             }
         }
