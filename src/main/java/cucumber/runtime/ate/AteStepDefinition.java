@@ -1,5 +1,6 @@
 package cucumber.runtime.ate;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.ObjectFactory;
 import cucumber.runtime.JdkPatternArgumentMatcher;
 import cucumber.runtime.MethodFormat;
@@ -13,7 +14,9 @@ import gherkin.formatter.model.Step;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.bigtester.ate.GlobalUtils;
@@ -28,6 +31,8 @@ class AteStepDefinition implements StepDefinition {
 
     private final JdkPatternArgumentMatcher argumentMatcher;
     private List<ParameterInfo> parameterInfos;
+    private List<Argument> arguments;
+    private Step matchStep;
 
     public AteStepDefinition(ICucumberTestStep method, Pattern pattern, long timeoutMillis, ObjectFactory objectFactory) {
         this.cucumberStep = method;
@@ -49,12 +54,21 @@ class AteStepDefinition implements StepDefinition {
     public void execute(I18n i18n, Object[] args) throws Throwable {
     	//TODO execution of ate steps will be invoked by ate for now.
     	System.out.println("invoke ate steps here!");
+    	if (args[0] instanceof DataTable) {
+    		//Map<String, String> instance = new HashMap<String, String>();
+    		List<Map<String, String>> convertedDataTable = ((DataTable)args[0]).asMaps(String.class, String.class);
+    		System.out.println("converted data # of rows: " + convertedDataTable.size());
+    	}
     	return;
         //Utils.invoke(objectFactory.getInstance(method.getDeclaringClass()), method, timeoutMillis, args);
     }
     @Override
     public List<Argument> matchedArguments(Step step) {
-        return argumentMatcher.argumentsFrom(step.getName());
+        arguments = argumentMatcher.argumentsFrom(step.getName());
+        if (arguments!=null) {
+        	matchStep = step;
+        }
+        return arguments;
     }
 
     @Override
@@ -71,11 +85,17 @@ class AteStepDefinition implements StepDefinition {
 
     @Override
     public Integer getParameterCount() {
-        return 0; //parameterInfos.size();
+    	int retVal = arguments.size();
+    	if (matchStep!=null && matchStep.getRows()!=null)
+    		retVal = retVal + 1;
+        return retVal; //parameterInfos.size();
     }
 
     @Override
     public ParameterInfo getParameterType(int n, Type argumentType) {
+    	if (argumentType.equals(DataTable.class)) {
+    		return new ParameterInfo(DataTable.class, ",\\s?", null, null);
+    	}
         return parameterInfos.get(n);
     }
 

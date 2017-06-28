@@ -24,26 +24,26 @@
 			<artifactId>org.bigtester.ate.core</artifactId>
 			<version>0.2.0-SNAPSHOT</version>
 		</dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-jvm-deps</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>gherkin</artifactId>
-            <scope>provided</scope>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>info.cukes</groupId> -->
+<!--             <artifactId>cucumber-core</artifactId> -->
+<!--         </dependency> -->
+<!--         <dependency> -->
+<!--             <groupId>info.cukes</groupId> -->
+<!--             <artifactId>cucumber-jvm-deps</artifactId> -->
+<!--             <scope>provided</scope> -->
+<!--         </dependency> -->
+<!--         <dependency> -->
+<!--             <groupId>info.cukes</groupId> -->
+<!--             <artifactId>gherkin</artifactId> -->
+<!--             <scope>provided</scope> -->
+<!--         </dependency> -->
 
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-junit</artifactId>
-            <scope>test</scope>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>info.cukes</groupId> -->
+<!--             <artifactId>cucumber-junit</artifactId> -->
+<!--             <scope>test</scope> -->
+<!--         </dependency> -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -63,73 +63,73 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-i18n-sources</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <target>
-                                <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="maven.plugin.classpath" />
+<!--             <plugin> -->
+<!--                 <groupId>org.apache.maven.plugins</groupId> -->
+<!--                 <artifactId>maven-antrun-plugin</artifactId> -->
+<!--                 <executions> -->
+<!--                     <execution> -->
+<!--                         <id>generate-i18n-sources</id> -->
+<!--                         <goals> -->
+<!--                             <goal>run</goal> -->
+<!--                         </goals> -->
+<!--                         <phase>generate-sources</phase> -->
+<!--                         <configuration> -->
+<!--                             <target> -->
+<!--                                 <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="maven.plugin.classpath" /> -->
 
-                                <groovy><![CDATA[
-import groovy.text.SimpleTemplateEngine
-import gherkin.I18n
+<!--                                 <groovy><![CDATA[ -->
+<!-- import groovy.text.SimpleTemplateEngine -->
+<!-- import gherkin.I18n -->
 
-def engine = new SimpleTemplateEngine()
-def templateSource = new File(project.baseDir, "src${File.separator}main${File.separator}code_generator${File.separator}I18n.java.txt").getText()
+<!-- def engine = new SimpleTemplateEngine() -->
+<!-- def templateSource = new File(project.baseDir, "src${File.separator}main${File.separator}code_generator${File.separator}I18n.java.txt").getText() -->
 
-def normalize(s) {
-  if(System.getProperty("java.version").startsWith("1.6")) {
-    return s
-  } else {
-    return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFC)
-  }
-}
+<!-- def normalize(s) { -->
+<!--   if(System.getProperty("java.version").startsWith("1.6")) { -->
+<!--     return s -->
+<!--   } else { -->
+<!--     return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFC) -->
+<!--   } -->
+<!-- } -->
 
 
-// TODO: Need to add i18n.getName() and i18n.getNative() for better names.
-def package_html = """\
-<body>
-<p>
-    \${i18n.getLocale().getDisplayLanguage()}
-</p>
-</body>
-"""
+<!-- // TODO: Need to add i18n.getName() and i18n.getNative() for better names. -->
+<!-- def package_html = """\ -->
+<!-- <body> -->
+<!-- <p> -->
+<!--     \${i18n.getLocale().getDisplayLanguage()} -->
+<!-- </p> -->
+<!-- </body> -->
+<!-- """ -->
 
-def unsupported = [] // We used to have problems with "kn", but it seems ok now.
+<!-- def unsupported = [] // We used to have problems with "kn", but it seems ok now. -->
 
-I18n.all.each { i18n ->
-  if (!unsupported.contains(i18n.underscoredIsoCode)) {
-    i18n.codeKeywords.each { kw ->
-      def normalized_kw = normalize(kw)
-      def binding = ["i18n":i18n, "kw":normalized_kw]
-      def template = engine.createTemplate(templateSource).make(binding)
-      def file = new File(project.baseDir, "target${File.separator}generated-sources${File.separator}i18n${File.separator}java${File.separator}cucumber${File.separator}api${File.separator}java${File.separator}${i18n.underscoredIsoCode}${File.separator}${normalized_kw}.java")
-      file.parentFile.mkdirs()
-      file.write(template.toString(), "UTF-8")
-    }
+<!-- I18n.all.each { i18n -> -->
+<!--   if (!unsupported.contains(i18n.underscoredIsoCode)) { -->
+<!--     i18n.codeKeywords.each { kw -> -->
+<!--       def normalized_kw = normalize(kw) -->
+<!--       def binding = ["i18n":i18n, "kw":normalized_kw] -->
+<!--       def template = engine.createTemplate(templateSource).make(binding) -->
+<!--       def file = new File(project.baseDir, "target${File.separator}generated-sources${File.separator}i18n${File.separator}java${File.separator}cucumber${File.separator}api${File.separator}java${File.separator}${i18n.underscoredIsoCode}${File.separator}${normalized_kw}.java") -->
+<!--       file.parentFile.mkdirs() -->
+<!--       file.write(template.toString(), "UTF-8") -->
+<!--     } -->
 
-    // html
-    def binding = ["i18n":i18n]
-    def html = engine.createTemplate(package_html).make(binding).toString()
-    def file = new File(project.baseDir, "target${File.separator}generated-sources${File.separator}i18n${File.separator}java${File.separator}cucumber${File.separator}api${File.separator}java${File.separator}${i18n.underscoredIsoCode}${File.separator}package.html")
-    file.write(html, "UTF-8")
-  }
-}
+<!--     // html -->
+<!--     def binding = ["i18n":i18n] -->
+<!--     def html = engine.createTemplate(package_html).make(binding).toString() -->
+<!--     def file = new File(project.baseDir, "target${File.separator}generated-sources${File.separator}i18n${File.separator}java${File.separator}cucumber${File.separator}api${File.separator}java${File.separator}${i18n.underscoredIsoCode}${File.separator}package.html") -->
+<!--     file.write(html, "UTF-8") -->
+<!--   } -->
+<!-- } -->
 
-        ]]></groovy>
+<!--         ]]></groovy> -->
 
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--                             </target> -->
+<!--                         </configuration> -->
+<!--                     </execution> -->
+<!--                 </executions> -->
+<!--             </plugin> -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
