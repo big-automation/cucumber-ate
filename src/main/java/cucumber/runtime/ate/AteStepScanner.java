@@ -79,11 +79,11 @@ class AteStepScanner {
 		                if (this.isHookStep(cucumberStep)) {
 		                    javaBackend.addHook(null, null);
 		                } else if (isRegularStepdef(cucumberStep)) {
-		                    javaBackend.addStepDefinition(cucumberStep);
+		                    javaBackend.addStepDefinition(cucumberStep, testCase, testSuite, caseRunner);
 		                }
 					}
 				}
-				caseRunner.tearDown();
+				//caseRunner.tearDown();
             }
         }
     }
@@ -101,7 +101,7 @@ class AteStepScanner {
                 if (isHookStep(null)) {
                     javaBackend.addHook(annotation, method);
                 } else if (isRegularStepdef(null)) {
-                    javaBackend.addStepDefinition(null);
+                    javaBackend.addStepDefinition(null, null, null, null);
                 }
             }
         }

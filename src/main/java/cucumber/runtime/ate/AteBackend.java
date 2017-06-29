@@ -34,8 +34,12 @@ import java.util.regex.Pattern;
 
 import org.bigtester.ate.GlobalUtils;
 import org.bigtester.ate.TestProjectRunner;
+import org.bigtester.ate.model.caserunner.CaseRunner;
 import org.bigtester.ate.model.casestep.ICucumberTestStep;
+import org.bigtester.ate.model.casestep.ITestCase;
 import org.bigtester.ate.model.project.TestProject;
+import org.bigtester.ate.model.project.TestSuite;
+import org.bigtester.ate.model.project.XmlTestCase;
 import org.dbunit.DatabaseUnitException;
 
 import static cucumber.runtime.io.MultiLoader.packageName;
@@ -163,10 +167,10 @@ public class AteBackend implements Backend {
         return snippetGenerator.getSnippet(step, functionNameGenerator);
     }
 
-    void addStepDefinition(ICucumberTestStep cucumberStep) {
+    void addStepDefinition(ICucumberTestStep cucumberStep, XmlTestCase ateTestCase, TestSuite testSuite, CaseRunner ateCaseRunner) {
         try {
             //if (objectFactory.addClass(method.getDeclaringClass())) {
-                glue.addStepDefinition(new AteStepDefinition(cucumberStep, pattern(cucumberStep), timeoutMillis(cucumberStep), objectFactory));
+                glue.addStepDefinition(new AteStepDefinition(cucumberStep, ateTestCase, testSuite, ateCaseRunner, pattern(cucumberStep), timeoutMillis(cucumberStep), objectFactory));
             //}
         } catch (DuplicateStepDefinitionException e) {
             throw e;

@@ -20,11 +20,18 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.bigtester.ate.GlobalUtils;
+import org.bigtester.ate.model.caserunner.CaseRunner;
 import org.bigtester.ate.model.casestep.ICucumberTestStep;
 import org.bigtester.ate.model.casestep.IStepJumpingEnclosedContainer;
+import org.bigtester.ate.model.casestep.ITestCase;
+import org.bigtester.ate.model.project.TestSuite;
+import org.bigtester.ate.model.project.XmlTestCase;
 
 class AteStepDefinition implements StepDefinition {
     private final ICucumberTestStep cucumberStep;
+    private final XmlTestCase ateTestCase;
+    private final TestSuite ateTestSuite;
+    private final CaseRunner ateCaseRunner;
     private final Pattern pattern;
     private final long timeoutMillis;
     private final ObjectFactory objectFactory;
@@ -34,8 +41,11 @@ class AteStepDefinition implements StepDefinition {
     private List<Argument> arguments;
     private Step matchStep;
 
-    public AteStepDefinition(ICucumberTestStep method, Pattern pattern, long timeoutMillis, ObjectFactory objectFactory) {
-        this.cucumberStep = method;
+    public AteStepDefinition(ICucumberTestStep cStep, XmlTestCase ateTestCase, TestSuite testSuite, CaseRunner ateCaseRunner, Pattern pattern, long timeoutMillis, ObjectFactory objectFactory) {
+        this.cucumberStep = cStep;
+        this.ateTestCase = ateTestCase;
+        this.ateTestSuite = testSuite;
+        this.ateCaseRunner = ateCaseRunner;
         this.pattern = pattern;
         this.timeoutMillis = timeoutMillis;
         this.objectFactory = objectFactory;
@@ -59,6 +69,13 @@ class AteStepDefinition implements StepDefinition {
     		List<Map<String, String>> convertedDataTable = ((DataTable)args[0]).asMaps(String.class, String.class);
     		System.out.println("converted data # of rows: " + convertedDataTable.size());
     	}
+    	//TODO refresh the testing data including table data and ActionNameValuePair if any before execute the steps below
+    	
+    	//NOTE: code below not tested yet.
+    	this.ateCaseRunner.getMyTestCase().getParentTestProject().setFilteringStepName(this.cucumberStep.getStepName());
+    	this.ateCaseRunner.getMyTestCase().goSteps();
+    	
+    	//TODO do we need to set the cucumber test result here?
     	return;
         //Utils.invoke(objectFactory.getInstance(method.getDeclaringClass()), method, timeoutMillis, args);
     }
