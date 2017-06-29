@@ -76,8 +76,10 @@ class AteStepDefinition implements StepDefinition {
     	this.ateCaseRunner.getMyTestCase().goSteps();
     	
     	//TODO do we need to set the cucumber test result here?
+    	
+    	//TODO add code to teardown test case if all of the cucumber steps have been executed.
     	return;
-        //Utils.invoke(objectFactory.getInstance(method.getDeclaringClass()), method, timeoutMillis, args);
+        
     }
     @Override
     public List<Argument> matchedArguments(Step step) {
