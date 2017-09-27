@@ -41,6 +41,7 @@ import org.bigtester.ate.model.project.TestProject;
 import org.bigtester.ate.model.project.TestSuite;
 import org.bigtester.ate.model.project.XmlTestCase;
 import org.dbunit.DatabaseUnitException;
+import org.springframework.context.ApplicationContext;
 
 import static cucumber.runtime.io.MultiLoader.packageName;
 
@@ -67,23 +68,28 @@ public class AteBackend implements Backend {
      * The constructor called by reflection by default.
      *
      * @param resourceLoader
+     * @throws SQLException 
+     * @throws DatabaseUnitException 
+     * @throws IOException 
      */
-    public AteBackend(ResourceLoader resourceLoader) {
+    public AteBackend(ResourceLoader resourceLoader) throws IOException, DatabaseUnitException, SQLException {
     	TestProjectRunner.registerXsdNameSpaceParsers();
     	TestProjectRunner.registerProblemHandlers();
-		this.testProject =GlobalUtils
-				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
+    	ApplicationContext testProjectContext = TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName); 
+    	TestProjectRunner.initDB(testProjectContext);
+		this.testProject = GlobalUtils.findTestProjectBean(testProjectContext);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
         ateStepScanner = new AteStepScanner(classFinder);
         objectFactory = ObjectFactoryLoader.loadObjectFactory(classFinder, Env.INSTANCE.get(ObjectFactory.class.getName()));
     }
 
-    public AteBackend(ObjectFactory objectFactory) {
+    public AteBackend(ObjectFactory objectFactory) throws IOException, DatabaseUnitException, SQLException {
     	TestProjectRunner.registerXsdNameSpaceParsers();
     	TestProjectRunner.registerProblemHandlers();
-		this.testProject =GlobalUtils
-				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
+    	ApplicationContext testProjectContext = TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName); 
+    	TestProjectRunner.initDB(testProjectContext);
+		this.testProject = GlobalUtils.findTestProjectBean(testProjectContext);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
         classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
@@ -91,11 +97,12 @@ public class AteBackend implements Backend {
         this.objectFactory = objectFactory;
     }
 
-    public AteBackend(ObjectFactory objectFactory, ClassFinder classFinder) {
+    public AteBackend(ObjectFactory objectFactory, ClassFinder classFinder) throws IOException, DatabaseUnitException, SQLException {
     	TestProjectRunner.registerXsdNameSpaceParsers();
     	TestProjectRunner.registerProblemHandlers();
-		this.testProject =GlobalUtils
-				.findTestProjectBean( TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName));
+    	ApplicationContext testProjectContext = TestProjectRunner.loadTestProjectContext(defaultTestProjectXmlFilePathName); 
+    	TestProjectRunner.initDB(testProjectContext);
+		this.testProject = GlobalUtils.findTestProjectBean(testProjectContext);
         this.objectFactory = objectFactory;
         this.classFinder = classFinder;
         ateStepScanner = new AteStepScanner(classFinder);
