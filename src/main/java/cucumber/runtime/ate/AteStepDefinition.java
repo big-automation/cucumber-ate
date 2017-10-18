@@ -72,7 +72,7 @@ class AteStepDefinition implements StepDefinition {
     	//TODO refresh the testing data including table data and ActionNameValuePair if any before execute the steps below
     	
     	//NOTE: code below not tested yet.
-    	this.ateCaseRunner.getMyTestCase().getParentTestProject().setFilteringStepName(this.cucumberStep.getStepName());
+    	//this.ateCaseRunner.getMyTestCase().getParentTestProject().setFilteringStepName(this.cucumberStep.getStepName());
     	this.ateCaseRunner.getMyTestCase().goSteps();
     	
     	//TODO do we need to set the cucumber test result here?
