@@ -24,6 +24,7 @@ import org.bigtester.ate.model.caserunner.CaseRunner;
 import org.bigtester.ate.model.casestep.ICucumberTestStep;
 import org.bigtester.ate.model.casestep.IStepJumpingEnclosedContainer;
 import org.bigtester.ate.model.casestep.ITestCase;
+import org.bigtester.ate.model.page.exception.StepExecutionException;
 import org.bigtester.ate.model.project.TestSuite;
 import org.bigtester.ate.model.project.XmlTestCase;
 
@@ -73,11 +74,18 @@ class AteStepDefinition implements StepDefinition {
     	
     	//NOTE: code below not tested yet.
     	//this.ateCaseRunner.getMyTestCase().getParentTestProject().setFilteringStepName(this.cucumberStep.getStepName());
-    	this.ateCaseRunner.getMyTestCase().goSteps();
+    	try {
+    		this.ateCaseRunner.getMyTestCase().goSteps();
+    	} catch (StepExecutionException e ){
+    		
+    	} finally {
+    		this.ateCaseRunner.tearDown();
+    	}    	
     	
     	//TODO do we need to set the cucumber test result here?
     	
     	//TODO add code to teardown test case if all of the cucumber steps have been executed.
+    	
     	return;
         
     }
